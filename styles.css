@@ -19,10 +19,13 @@ body{
     justify-content: space-between;
     padding: 10px 30px;
     background-color: rgb(148, 148, 124);
+
 }
 
 #game-area{
-    background-color: rgb(12, 46, 12);
+    /* background-color: rgb(12, 46, 12); */
+    background-image: url(./assets/backgrounggame.webp);
+    background-size: cover;
     position: relative;
     width: 100%;
     height: calc(100vh - 50px);
@@ -50,11 +53,12 @@ body{
 }
 
 #bullet{
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     position: absolute;
     border-radius: 50%;
-    background-color: red;
+    background-image: url(./assets/shoot.png);
+    background-size: cover;
     display: none;
 }
 
