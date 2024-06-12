@@ -1,6 +1,4 @@
 
-
-
 /* top left e meu padrao de distribuicao na tela */
 /* coordenada cartesiana: localizacao de um ponto no plano */
 /* vai sempre aparecer na tela do computador as coordenadas (0,0) por convencao */
@@ -9,6 +7,9 @@
 /* Y vertical top */
 
 body{
+    font-family: "Play", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     font-size: 1.5rem;
     margin: 0;
     padding: 0;
@@ -77,19 +78,19 @@ body{
     height: 200px;
     position: absolute;
     bottom: 0;
-    left: 0;
-    background-image: url(./assets/militartruck.webp);
+    right: 0;
+    background-image: url(./assets/militartruck2.png);
     background-size: cover;
 }
 
 
-#person{
+#character{
     width: 150px;
     height: 150px;
     position: absolute;
     bottom: 0;
-    right: 0;
-    background-image: url(./assets/militar.jpeg);
+    left: 0;
+    background-image: url(./assets/character-cowboy.png);
     background-size: cover;
 
 }

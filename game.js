@@ -79,6 +79,7 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+
 let bullet = {
     html: document.getElementById('bullet'),
     width: null,
@@ -167,7 +168,6 @@ let computer = {
     }
 }
 
-//fazer o truck e a person
 
 let truck = {
     html: document.getElementById('truck'),
@@ -175,15 +175,85 @@ let truck = {
     height: null,
     bottom: 0,
     left: 0,
+    isWaiting: false,
+    startMove: (bottom) => {
+        truck.bottom = bottom;
+        truck.isMoving = true;
+    },
+    move: () => {
+        if (!truck.isMoving && !truck.isWaiting) {
+            truck.isWaiting = true;
+            setTimeout(() => {
+                truck.isWaiting = false;
+                let bottom = Math.floor(Math * (gameArea.height - truck.height - truck.height));
+                truck.right = 0;
+                truck.startMove(bottom);
+            }, 2000);
+        }
+        if (truck.isMoving) {
+            if (truck.right >= gameArea.width) {
+                truck.isMoving = false;
+                truck.right = 0;
+                truck.updatePosition();
+                return
+            }
+            truck.right += 5;
+            truck.updatePosition();
+        }
+    },
+    stopMove: () => {
+        truck.isMoving = false;
+    },
+    updatePosition: () => {
+        if (truck.isMoving) {
+            truck.html.style.bottom = truck.bottom + 'px';
+            truck.html.style.right = truck.right + 'px';
+        }
+    }
 }
 
 
-let person = {
-    html: document.getElementById('person'),
+let character = {
+    html: document.getElementById('character'),
     width: null,
     height: null,
     bottom: 0,
-    right: 0,
+    left: 0,
+    isWaiting: false,
+    startMove: (bottom) => {
+        character.bottom = bottom;
+        character.isMoving = true;
+    },
+    move: () => {
+        if (!character.isMoving && !character.isWaiting) {
+            character.isWaiting = true;
+            setTimeout(() => {
+                character.isWaiting = false;
+                let bottom = Math.floor(Math * (gameArea.height - character.height - character.height));
+                character.left = 0;
+                character.startMove(bottom);
+            }, 2000);
+        }
+        if (character.isMoving) {
+            if (character.right >= gameArea.width) {
+                character.isMoving = false;
+                character.left = 0;
+                character.updatePosition();
+                return
+            }
+            character.left += 5;
+            character.updatePosition();
+        }
+    },
+    stopMove: () => {
+        character.isMoving = false;
+    },
+    updatePosition: () => {
+        if (character.isMoving) {
+            character.html.style.bottom = character.bottom + 'px';
+            character.html.style.left = character.left + 'px';
+        }
+    }
 }
 
 // o bullet ja é um objeto global, entao nao preciso passar como parametro
@@ -211,7 +281,10 @@ let checkCollisionComputerBullet = () => {
         computer.stopMove();
         bullet.stopMove();
     }
+}
 
+let checkCollisionCharacterTruck = () => {
+    
 }
 
 
@@ -221,6 +294,8 @@ let checkCollisionComputerBullet = () => {
 const gameLoop = () => {
     setInterval(() => {
         computer.move();
+        truck.move()
+        character.move()
         //aqui dentro eu vou atualizar a posicao do bullet
         //vou atualizar a posicao do computador, etc
         bullet.move();
@@ -236,5 +311,5 @@ helperSetSize(gameArea);
 helperSetSize(player);
 helperSetSize(computer);
 helperSetSize(truck);
-helperSetSize(person);
+helperSetSize(character);
 gameLoop();
