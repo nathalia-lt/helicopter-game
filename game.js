@@ -5,6 +5,8 @@ const helperSetSize = (obj) => {
     obj.height = obj.html.clientHeight;
 }
 
+let score = 0
+
 
 // tenho que transformar meu player em objeto
 //possui propriedades e metodos
@@ -21,8 +23,8 @@ let gameArea = {
 }
 
 let player = {
-    top: 0,
-    left: 0,
+    positionY: 0,
+    positionX: 0,
     width: null,
     height: null,
     isShooting: false,
@@ -38,30 +40,30 @@ let player = {
         }
         player.isShooting = true;
         //vai sair do meio do jogador
-        bullet.startMove(player.top + player.height / 2, player.left + player.width);
+        bullet.startMove(player.positionY + player.height / 2, player.positionX + player.width);
     },
     //fiz um metodo para parar o shooting, quando eu preciso eu chamo ele.
     finishShoot: () => {
         player.isShooting = false;
     },
     moveUp: () => {
-        if (player.top <= 0) {
+        if (player.positionY <= 0) {
             return
         }
-        player.top -= 20;
+        player.positionY -= 20;
         player.updatePosition();
     },
     moveDown: () => {
-        if (player.top >= gameArea.height - player.height) {
+        if (player.positionY >= gameArea.height - player.height) {
             return
         }
-        player.top += 20;
+        player.positionY += 20;
         player.updatePosition();
     },
     // view
     updatePosition: () => {
-        player.html.style.top = player.top + 'px';
-        player.html.style.left = player.left + 'px';
+        player.html.style.top = player.positionY + 'px';
+        player.html.style.left = player.positionX + 'px';
     }
 }
 
@@ -84,32 +86,32 @@ let bullet = {
     html: document.getElementById('bullet'),
     width: null,
     height: null,
-    top: 0,
-    left: 0,
+    positionY: 0,
+    positionX: 0,
     isMoving: false,
-    //recebe o top do jogador
-    startMove: (top, left) => {
-        bullet.top = top;
-        bullet.left = left;
+    //recebe o positionY do jogador
+    startMove: (positionY, positionX) => {
+        bullet.positionY = positionY;
+        bullet.positionX = positionX;
         bullet.isMoving = true;
     },
     move: () => {
         if (!bullet.isMoving) {
             return
         }
-        if (bullet.left >= gameArea.width) {
+        if (bullet.positionX >= gameArea.width) {
             bullet.isMoving = false;
-            bullet.left = 0;
+            bullet.positionX = 0;
             bullet.updatePosition();
             player.finishShoot();
             return
         }
-        bullet.left += 10;
+        bullet.positionX += 10;
         bullet.updatePosition();
     },
     stopMove: () => {
         bullet.isMoving = false;
-        bullet.left = 0;
+        bullet.positionX = 0;
         player.finishShoot();
         bullet.updatePosition();
     },
@@ -119,20 +121,20 @@ let bullet = {
         } else {
             bullet.html.style.display = 'none';
         }
-        bullet.html.style.top = bullet.top + 'px';
-        bullet.html.style.left = bullet.left + 'px';
+        bullet.html.style.top = bullet.positionY + 'px';
+        bullet.html.style.left = bullet.positionX + 'px';
     }
 }
 
 let computer = {
-    top: 0,
-    right: 0,
+    positionY: 0,
+    positionX: 0,
     width: null,
     height: null,
     html: document.getElementById('computer'),
     isWaiting: false,
-    startMove: (top) => {
-        computer.top = top;
+    startMove: (positionY) => {
+        computer.positionY = positionY;
         computer.isMoving = true;
     },
     move: () => {
@@ -140,19 +142,21 @@ let computer = {
             computer.isWaiting = true;
             setTimeout(() => {
                 computer.isWaiting = false;
-                let top = Math.floor(Math.random() * (gameArea.height - computer.height - truck.height));
-                computer.right = 0;
-                computer.startMove(top);
+                let positionY = Math.floor(Math.random() * (gameArea.height - computer.height - truck.height));
+                computer.positionX = gameArea.width;
+                computer.startMove(positionY);
             }, 2000);
         }
         if (computer.isMoving) {
-            if (computer.right >= gameArea.width) {
+            // se a posicao do computador for menor que 0 menos o computador, ou seja saindo da tela -1, -2,-3....
+            if (computer.positionX <= 0 - computer.width) {
                 computer.isMoving = false;
-                computer.right = 0;
+                //vai comecar no comprimento da area do jogo
+                computer.positionX = gameArea.width;
                 computer.updatePosition();
                 return
             }
-            computer.right += 5;
+            computer.positionX -= 5;
             computer.updatePosition();
         }
 
@@ -162,8 +166,8 @@ let computer = {
     },
     updatePosition: () => {
         if (computer.isMoving) {
-            computer.html.style.top = computer.top + 'px';
-            computer.html.style.right = computer.right + 'px';
+            computer.html.style.top = computer.positionY + 'px';
+            computer.html.style.left = computer.positionX + 'px';
         }
     }
 }
@@ -173,11 +177,14 @@ let truck = {
     html: document.getElementById('truck'),
     width: null,
     height: null,
-    bottom: 0,
-    left: 0,
+    // top
+    positionY: 0,
+    // left
+    positionX: 0,
     isWaiting: false,
-    startMove: (bottom) => {
-        truck.bottom = bottom;
+    isMoving: false,
+    startMove: (positionY) => {
+        truck.positionY = positionY;
         truck.isMoving = true;
     },
     move: () => {
@@ -185,19 +192,21 @@ let truck = {
             truck.isWaiting = true;
             setTimeout(() => {
                 truck.isWaiting = false;
-                let bottom = Math.floor(Math * (gameArea.height - truck.height - truck.height));
-                truck.right = 0;
-                truck.startMove(bottom);
+                let positionY = gameArea.height - truck.height
+                truck.positionX = gameArea.width;
+                truck.startMove(positionY);
             }, 2000);
         }
         if (truck.isMoving) {
-            if (truck.right >= gameArea.width) {
+            //o meu truck que vem do right (que é o tamanho maximo da minha tela). Se a posicao do meu truck for menor que o gamearea menos o comprimento de caminhao, quer dizer que ele saiu completamente da tela.
+            //se a posicao do meu truck for menor que 0 menos o tamanho do meu truck
+            if (truck.positionX <= 0 - truck.width) {
                 truck.isMoving = false;
-                truck.right = 0;
+                truck.positionX = gameArea.width;
                 truck.updatePosition();
                 return
             }
-            truck.right += 5;
+            truck.positionX -= 4;
             truck.updatePosition();
         }
     },
@@ -206,8 +215,8 @@ let truck = {
     },
     updatePosition: () => {
         if (truck.isMoving) {
-            truck.html.style.bottom = truck.bottom + 'px';
-            truck.html.style.right = truck.right + 'px';
+            truck.html.style.top = truck.positionY + 'px';
+            truck.html.style.left = truck.positionX + 'px';
         }
     }
 }
@@ -217,11 +226,14 @@ let character = {
     html: document.getElementById('character'),
     width: null,
     height: null,
-    bottom: 0,
-    left: 0,
+    // top
+    positionY: 0,
+    // left
+    positionX: 0,
     isWaiting: false,
-    startMove: (bottom) => {
-        character.bottom = bottom;
+    isMoving: false,
+    startMove: (positionY) => {
+        character.positionY = positionY;
         character.isMoving = true;
     },
     move: () => {
@@ -229,19 +241,20 @@ let character = {
             character.isWaiting = true;
             setTimeout(() => {
                 character.isWaiting = false;
-                let bottom = Math.floor(Math * (gameArea.height - character.height - character.height));
-                character.left = 0;
-                character.startMove(bottom);
+                let positionY = gameArea.height - character.height;
+                character.positionX = 0;
+                character.startMove(positionY);
             }, 2000);
         }
         if (character.isMoving) {
-            if (character.right >= gameArea.width) {
+            //character.positionX é a posicao do meu caracter
+            if (character.positionX >= gameArea.width) {
                 character.isMoving = false;
-                character.left = 0;
+                character.positionX = 0;
                 character.updatePosition();
                 return
             }
-            character.left += 5;
+            character.positionX += 1;
             character.updatePosition();
         }
     },
@@ -250,8 +263,8 @@ let character = {
     },
     updatePosition: () => {
         if (character.isMoving) {
-            character.html.style.bottom = character.bottom + 'px';
-            character.html.style.left = character.left + 'px';
+            character.html.style.top = character.positionY + 'px';
+            character.html.style.left = character.positionX + 'px';
         }
     }
 }
@@ -262,32 +275,75 @@ let checkCollisionComputerBullet = () => {
     if (!bullet.isMoving) {
         return
     }
-    // (5) está entre (2) e (7)
-    // 5 > 2 && 5 < 7
 
-    // Se o (top da bolinha) estiver entre (o top do computador) e o (top do computador + a altura do computador) => tem change de haver colisão
-    if ( 
-        !((bullet.top > computer.top && 
-        bullet.top < (computer.top + computer.height) )
-        || 
-        ((bullet.top + bullet.height) > computer.top && 
-        (bullet.top + bullet.height) < (computer.top + computer.height))
-    )){
-        return
-    }
-    // Se o (left da bolinha + width da bolinha) for maior que o left do computador => colidiu
-    if (bullet.left + bullet.width >= gameArea.width - computer.right - computer.width) {
-        console.log('colidiu');
+    if (hasCollided(bullet, computer)) {
         computer.stopMove();
         bullet.stopMove();
+        console.log('aumenta o número de helicópteros abatidos');
     }
 }
 
+let checkCollisionPlayerComputer = () => {
+    if (hasCollided(player, computer)) {
+        // player.stopMove();
+        computer.stopMove();
+        console.log('perdeu uma vida');
+    }
+}
+
+let checkCollisionPlayerTruck = () => {
+    if (hasCollided(player, truck)) {
+        // player.stopMove();
+        truck.stopMove();
+        console.log('perdeu uma vida');
+    }
+}
+
+let checkCollisionPlayerCharacter = () => {
+    if (hasCollided(player, character)) {
+        // player.stopMove();
+        character.stopMove();
+        console.log('aumenta o número de salvamentos realizados');
+    }
+}
+
+//positionY left é meu padrao de distribuicao, mesmo eu tento usado bottom nos meus objetos?
 let checkCollisionCharacterTruck = () => {
-    
+
+    if (hasCollided(character, truck)) {
+        truck.stopMove();
+        character.stopMove();
+        console.log('aumenta o número de salvamentos não realizados');
+    }
+}
+
+// a = who is on left; b = who is on right
+const hasCollided = (a, b) => {
+    if (
+        !((a.positionY > b.positionY &&
+            a.positionY < (b.positionY + b.height))
+            ||
+            ((a.positionY + a.height) > b.positionY &&
+                (a.positionY + a.height) < (b.positionY + b.height))
+        )) {
+        return false
+    }
+    if (a.positionX + a.width >= b.positionX) {
+        console.log('colidiu');
+        return true
+    }
+    return false
 }
 
 
+let scoreGame = () => {
+    htmlLives = document.getElementById('lives')
+    if (bullet.left + bullet.width >= gameArea.width - computer.right - computer.width) {
+        // ta errado
+        htmlLives.innerText = +1
+
+    }
+}
 
 
 //para o game se atualizar, normalmente jogo é 60 vezes por segundo
@@ -300,6 +356,10 @@ const gameLoop = () => {
         //vou atualizar a posicao do computador, etc
         bullet.move();
         checkCollisionComputerBullet();
+        checkCollisionCharacterTruck();
+        checkCollisionPlayerComputer();
+        checkCollisionPlayerCharacter();
+        checkCollisionPlayerTruck();
     }, 1000 / 60); // 60fps
 }
 

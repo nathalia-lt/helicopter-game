@@ -85,12 +85,13 @@ body{
 
 
 #character{
-    width: 150px;
-    height: 150px;
+    width: 70px;
+    /* 218/461 dividir o tamanho da imagem */
+    aspect-ratio: 0.47;
     position: absolute;
     bottom: 0;
     left: 0;
     background-image: url(./assets/character-cowboy.png);
     background-size: cover;
-
+    transform: rotateY(180deg);
 }
