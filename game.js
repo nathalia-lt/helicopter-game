@@ -6,7 +6,47 @@ const helperSetSize = (obj) => {
 }
 
 let score = 0
+let helicopterDown = 0
+let characterNotSaved = 0
 
+let lifeScore = {
+    html: document.getElementById('life-score'),
+    value: 3,
+    subtract: () => {
+        lifeScore.value -= 1
+        lifeScore.update()
+    },
+    add:() => {
+        lifeScore.value += 1
+        lifeScore.update()
+    },
+    initValue: () => {
+        lifeScore.value = 3
+        lifeScore.update()
+    },
+    update: () => {
+        lifeScore.html.innerText = lifeScore.value
+    }
+}
+
+// nunca se altera um objeto dentro de outro objeto, as propriedades.
+let characterSaved = {
+    html: document.getElementById('character-saved'),
+    value: 0,
+    addCharacter: () => {
+        //a cada tres cowboys saved I wanna add a lifeScore
+        //mod operator mod (reminder)
+        characterSaved.value += 1
+        if (characterSaved.value % 3 === 0){
+            lifeScore.add()
+        } 
+        
+        characterSaved.update()
+    },
+    update: () => {
+        characterSaved.html.innerText = characterSaved.value
+    }
+}
 
 // tenho que transformar meu player em objeto
 //possui propriedades e metodos
@@ -34,6 +74,9 @@ let player = {
     //     player.height = player.html.clientHeight;
     // }
     shoot: () => {
+        if (isGameOver()) {
+            return
+        }
         if (player.isShooting) {
             console.log('ja esta atirando');
             return
@@ -47,6 +90,9 @@ let player = {
         player.isShooting = false;
     },
     moveUp: () => {
+        if (isGameOver()) {
+            return
+        }
         if (player.positionY <= 0) {
             return
         }
@@ -54,6 +100,9 @@ let player = {
         player.updatePosition();
     },
     moveDown: () => {
+        if (isGameOver()) {
+            return
+        }
         if (player.positionY >= gameArea.height - player.height) {
             return
         }
@@ -272,7 +321,7 @@ let character = {
 // o bullet ja é um objeto global, entao nao preciso passar como parametro
 let checkCollisionComputerBullet = () => {
     // Se a bolinha não estiver se movimentando => não tem change de haver colisão
-    if (!bullet.isMoving) {
+    if (!bullet.isMoving || !computer.isMoving) {
         return
     }
 
@@ -280,56 +329,75 @@ let checkCollisionComputerBullet = () => {
         computer.stopMove();
         bullet.stopMove();
         console.log('aumenta o número de helicópteros abatidos');
+        helicopterDown += 1
     }
 }
 
 let checkCollisionPlayerComputer = () => {
-    if (hasCollided(player, computer)) {
+    console.log('player', player.positionX, player.positionY)
+    console.log('computer', computer.positionX, computer.positionY)
+    if (computer.isMoving && hasCollided(player, computer)) {
         // player.stopMove();
         computer.stopMove();
         console.log('perdeu uma vida');
+        lifeScore.subtract()
     }
 }
 
 let checkCollisionPlayerTruck = () => {
-    if (hasCollided(player, truck)) {
+    if (truck.isMoving && hasCollided(player, truck)) {
         // player.stopMove();
         truck.stopMove();
         console.log('perdeu uma vida');
+        // lifeScore.subtract()
     }
 }
 
 let checkCollisionPlayerCharacter = () => {
-    if (hasCollided(player, character)) {
+    if (character.isMoving && hasCollided(player, character)) {
         // player.stopMove();
         character.stopMove();
         console.log('aumenta o número de salvamentos realizados');
+        characterSaved.addCharacter()
     }
 }
 
 //positionY left é meu padrao de distribuicao, mesmo eu tento usado bottom nos meus objetos?
 let checkCollisionCharacterTruck = () => {
 
-    if (hasCollided(character, truck)) {
+    if (truck.isMoving && hasCollided(character, truck)) {
         truck.stopMove();
         character.stopMove();
         console.log('aumenta o número de salvamentos não realizados');
+        characterNotSaved = 0
     }
 }
 
 // a = who is on left; b = who is on right
 const hasCollided = (a, b) => {
     if (
-        !((a.positionY > b.positionY &&
-            a.positionY < (b.positionY + b.height))
-            ||
-            ((a.positionY + a.height) > b.positionY &&
-                (a.positionY + a.height) < (b.positionY + b.height))
-        )) {
-        return false
+        a.positionX < b.positionX + b.width &&
+        a.positionX + a.width > b.positionX &&
+        a.positionY < b.positionY + b.height &&
+        a.positionY + a.height > b.positionY
+    ) {
+        return true
     }
-    if (a.positionX + a.width >= b.positionX) {
-        console.log('colidiu');
+    return false
+}
+
+let stopTheGame = () => {
+    bullet.stopMove();
+    computer.stopMove();
+    truck.stopMove();
+    character.stopMove();
+
+}
+
+let isGameOver = () => {
+    console.log(lifeScore.value)
+    if (lifeScore.value <= 0) {
+        console.log('Game Over')
         return true
     }
     return false
@@ -349,6 +417,11 @@ let scoreGame = () => {
 //para o game se atualizar, normalmente jogo é 60 vezes por segundo
 const gameLoop = () => {
     setInterval(() => {
+        if (isGameOver()) {
+            stopTheGame();
+            //return para ele nao continuar movimentando 
+            return;
+        }
         computer.move();
         truck.move()
         character.move()
@@ -360,6 +433,8 @@ const gameLoop = () => {
         checkCollisionPlayerComputer();
         checkCollisionPlayerCharacter();
         checkCollisionPlayerTruck();
+
+
     }, 1000 / 60); // 60fps
 }
 
