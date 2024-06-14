@@ -29,6 +29,8 @@ let lifeScore = {
     }
 }
 
+
+
 // nunca se altera um objeto dentro de outro objeto, as propriedades.
 let characterSaved = {
     html: document.getElementById('character-saved'),
@@ -46,6 +48,10 @@ let characterSaved = {
     update: () => {
         characterSaved.html.innerText = characterSaved.value
     }
+}
+
+let characterNotSaved = {
+    html: document.getElementById(),
 }
 
 // tenho que transformar meu player em objeto
