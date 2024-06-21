@@ -5,9 +5,9 @@ const helperSetSize = (obj) => {
     obj.height = obj.html.clientHeight;
 }
 
+let loopTimer = null
+
 let score = 0
-let helicopterDown = 0
-let characterNotSaved = 0
 
 let lifeScore = {
     html: document.getElementById('life-score'),
@@ -16,7 +16,7 @@ let lifeScore = {
         lifeScore.value -= 1
         lifeScore.update()
     },
-    add:() => {
+    add: () => {
         lifeScore.value += 1
         lifeScore.update()
     },
@@ -29,8 +29,6 @@ let lifeScore = {
     }
 }
 
-
-
 // nunca se altera um objeto dentro de outro objeto, as propriedades.
 let characterSaved = {
     html: document.getElementById('character-saved'),
@@ -39,20 +37,63 @@ let characterSaved = {
         //a cada tres cowboys saved I wanna add a lifeScore
         //mod operator mod (reminder)
         characterSaved.value += 1
-        if (characterSaved.value % 3 === 0){
+        if (characterSaved.value % 3 === 0) {
             lifeScore.add()
-        } 
-        
+        }
         characterSaved.update()
     },
     update: () => {
         characterSaved.html.innerText = characterSaved.value
-    }
+    },
+    initValue: () => {
+        characterSaved.value = 0
+        characterSaved.update()
+    },
 }
 
 let characterNotSaved = {
-    html: document.getElementById(),
+    html: document.getElementById('character-not-saved'),
+    value: 0,
+    addCharacter: () => {
+        //a cada tres cowboys saved I wanna add a lifeScore
+        //mod operator mod (reminder)
+        characterNotSaved.value += 1
+        if (characterNotSaved.value % 3 === 0) {
+            lifeScore.subtract()
+        }
+        characterNotSaved.update()
+    },
+    update: () => {
+        characterNotSaved.html.innerText = characterNotSaved.value
+    },
+    initValue: () => {
+        characterNotSaved.value = 0
+        characterNotSaved.update()
+    },
 }
+
+
+
+
+let helicopterDown = {
+    html: document.getElementById('helicopter-down'),
+    value: 0,
+    addHelicopter: () => {
+        helicopterDown.value += 1
+        helicopterDown.update()
+    },
+    update: () => {
+        helicopterDown.html.innerText = helicopterDown.value
+    },
+    initValue: () => {
+        helicopterDown.value = 0
+        helicopterDown.update()
+    },
+}
+
+
+
+
 
 // tenho que transformar meu player em objeto
 //possui propriedades e metodos
@@ -102,7 +143,7 @@ let player = {
         if (player.positionY <= 0) {
             return
         }
-        player.positionY -= 20;
+        player.positionY -= 35;
         player.updatePosition();
     },
     moveDown: () => {
@@ -112,7 +153,27 @@ let player = {
         if (player.positionY >= gameArea.height - player.height) {
             return
         }
-        player.positionY += 20;
+        player.positionY += 35;
+        player.updatePosition();
+    },
+    moveForward: () => {
+        if (isGameOver()){
+            return
+        }
+        if (player.positionX >= gameArea.width - player.width) {
+            return
+        }
+        player.positionX += 35;
+        player.updatePosition();
+    },
+    moveBackward: () => {
+        if (isGameOver()){
+            return
+        }
+        if (player.positionX <= 0) {
+            return
+        }
+        player.positionX -= 35;
         player.updatePosition();
     },
     // view
@@ -133,6 +194,12 @@ document.addEventListener('keydown', (event) => {
     } else if (event.key === ' ') {
         console.log('shoot');
         player.shoot();
+    } else if (event.key === 'ArrowRight'){
+        console.log('moving forward')
+        player.moveForward()
+    } else if (event.key === 'ArrowLeft'){
+        console.log('moving Backwards')
+        player.moveBackward()
     }
 });
 
@@ -161,7 +228,7 @@ let bullet = {
             player.finishShoot();
             return
         }
-        bullet.positionX += 10;
+        bullet.positionX += 25;
         bullet.updatePosition();
     },
     stopMove: () => {
@@ -335,13 +402,11 @@ let checkCollisionComputerBullet = () => {
         computer.stopMove();
         bullet.stopMove();
         console.log('aumenta o número de helicópteros abatidos');
-        helicopterDown += 1
+        helicopterDown.addHelicopter()
     }
 }
 
 let checkCollisionPlayerComputer = () => {
-    console.log('player', player.positionX, player.positionY)
-    console.log('computer', computer.positionX, computer.positionY)
     if (computer.isMoving && hasCollided(player, computer)) {
         // player.stopMove();
         computer.stopMove();
@@ -355,7 +420,7 @@ let checkCollisionPlayerTruck = () => {
         // player.stopMove();
         truck.stopMove();
         console.log('perdeu uma vida');
-        // lifeScore.subtract()
+        lifeScore.subtract()
     }
 }
 
@@ -375,7 +440,7 @@ let checkCollisionCharacterTruck = () => {
         truck.stopMove();
         character.stopMove();
         console.log('aumenta o número de salvamentos não realizados');
-        characterNotSaved = 0
+        characterNotSaved.addCharacter()
     }
 }
 
@@ -397,17 +462,49 @@ let stopTheGame = () => {
     computer.stopMove();
     truck.stopMove();
     character.stopMove();
-
 }
 
+// Here I open a gameover modal
+let modal = document.getElementById('game-modal')
 let isGameOver = () => {
-    console.log(lifeScore.value)
     if (lifeScore.value <= 0) {
+        modal.style.display = "block"
         console.log('Game Over')
+        clearInterval(loopTimer)
+        loopTimer = null;
         return true
     }
     return false
 }
+
+//let closeModal = document.getElementsByClassName('close')[0];
+
+// closeModal.addEventListener('click', function(e){
+//     if (e.target)
+//     modal.style.display = 'none'
+// })
+
+let closeModal = document.getElementById('close-content')
+closeModal.addEventListener('click', function () {
+    modal.style.display = 'none'
+})
+
+
+// When the user clicks anywhere outside of the modal, close it
+window.addEventListener('click', function () {
+    modal.style.display = 'none'
+})
+
+let playbtn = document.getElementById('play-again-btn')
+playbtn.addEventListener('click', () => {
+    console.log('reiniciar o jogo')
+    lifeScore.initValue()
+    characterSaved.initValue()
+    helicopterDown.initValue()
+    characterNotSaved.initValue()
+    gameLoop()
+})
+
 
 
 let scoreGame = () => {
@@ -422,7 +519,7 @@ let scoreGame = () => {
 
 //para o game se atualizar, normalmente jogo é 60 vezes por segundo
 const gameLoop = () => {
-    setInterval(() => {
+    loopTimer = setInterval(() => {
         if (isGameOver()) {
             stopTheGame();
             //return para ele nao continuar movimentando 
@@ -439,8 +536,6 @@ const gameLoop = () => {
         checkCollisionPlayerComputer();
         checkCollisionPlayerCharacter();
         checkCollisionPlayerTruck();
-
-
     }, 1000 / 60); // 60fps
 }
 

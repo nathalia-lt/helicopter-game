@@ -16,15 +16,27 @@
     <div id="score-area">
       <div>Life Score: <span id="life-score"> 3 </span></div>
       <div>Cowboys saved: <span id="character-saved"> 0 </span></div>
-      
-      <div id="lives">3 x 4</div>
+      <div>Enemy Helicopter: <span id="helicopter-down"> 0 </span></div>
+      <div>Cowboys Not saved: <span id="character-not-saved"> 0 </span></div>
     </div>
+
     <div id="game-area">
       <div id="player"></div>
       <div id="computer"></div>
       <div id="bullet"></div>
       <div id="truck"></div>
       <div id="character"></div>
+       
+      <!-- The Modal -->
+<div id="game-modal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span id="close-content">&times;</span>
+      <p>Game Over!</p>
+      <button id="play-again-btn">Play Again</button>
+    </div>
+  
+  </div>
     </div>
     <script type="module" src="game.js"></script>
   </body>
